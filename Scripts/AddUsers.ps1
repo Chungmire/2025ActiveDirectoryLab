@@ -1,11 +1,11 @@
 # Names list URL
 $NAMES_URL = "https://raw.githubusercontent.com/Chungmire/2025ActiveDirectoryLab/main/names.txt"
 
+# Get OU name
+$OU_NAME = Read-Host "Enter the name of the OU to create for users"
+
 # Get password
 $PASSWORD_FOR_USERS = Read-Host "Enter default password for new users"
-
-# Get OU name
-$OU_NAME = Read-Host "Enter the name of the OU to create"
 
 # Get and validate number of users
 do {
