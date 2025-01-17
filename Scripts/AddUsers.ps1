@@ -1,20 +1,3 @@
-# Self-elevate the script if required
-if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
-    $CommandLine = "-NoProfile -ExecutionPolicy Bypass -Command & ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/Chungmire/2025ActiveDirectoryLab/main/Scripts/AddUsers.ps1')))"
-    Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList $CommandLine
-    Exit
-}
-
-
-# Check if Active Directory module is available
-if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
-    Write-Host "The Active Directory PowerShell module is not installed." -ForegroundColor Red
-    Write-Host "This script requires a Domain Controller or RSAT tools installed." -ForegroundColor Yellow
-    Write-Host "`nPress Enter to exit..." -ForegroundColor Yellow
-    Read-Host
-    exit 1
-}
-
 # Names list URL
 $NAMES_URL = "https://raw.githubusercontent.com/Chungmire/2025ActiveDirectoryLab/main/names.txt"
 
