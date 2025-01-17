@@ -16,14 +16,14 @@ if (-not (Get-Module -ListAvailable -Name ActiveDirectory)) {
 }
 
 # Names list URL
-$NAMES_URL = "https://raw.githubusercontent.com/dominictarr/random-name/master/names.txt"
+$NAMES_URL = "https://raw.githubusercontent.com/Chungmire/2025ActiveDirectoryLab/main/names.txt"
 
 # Get password
-$PASSWORD_FOR_USERS = Read-Host "Enter the default password for new users"
+$PASSWORD_FOR_USERS = Read-Host "Enter the default password for new users: "
 
 # Get and validate number of users
 do {
-    $NUMBER_OF_USERS = Read-Host "How many users would you like to create?"
+    $NUMBER_OF_USERS = Read-Host "Enter number of users to create: "
     
     if (-not ($NUMBER_OF_USERS -match '^\d+$')) {
         Write-Host "Please enter a valid number." -ForegroundColor Red
@@ -51,17 +51,70 @@ try {
     exit 1
 }
 
-Write-Host "`nNames selected for user creation:" -ForegroundColor Cyan
+# Convert password to secure string
+$password = ConvertTo-SecureString $PASSWORD_FOR_USERS -AsPlainText -Force
+
+# Create Users OU if it doesn't exist
+try {
+    $domainDN = (Get-ADDomain).DistinguishedName
+    Get-ADOrganizationalUnit -Identity "OU=_USERS,$domainDN" 
+    Write-Host "_USERS OU already exists" -ForegroundColor Cyan
+} catch {
+    Write-Host "Creating _USERS Organizational Unit..." -ForegroundColor Cyan
+    try {
+        New-ADOrganizationalUnit -Name "_USERS" -Path $domainDN -ProtectedFromAccidentalDeletion $false
+    } catch {
+        Write-Host "Error creating _USERS OU: $_" -ForegroundColor Red
+        Write-Host "`nPress Enter to exit..." -ForegroundColor Yellow
+        Read-Host
+        exit 1
+    }
+}
+
+# Track creation statistics
+$successCount = 0
+$errorCount = 0
+
+# Create users
 foreach ($n in $USER_FIRST_LAST_LIST) {
     $first = $n.Split(" ")[0].Trim().ToLower()
     $last = $n.Split(" ")[1].Trim().ToLower()
     $username = "$($first.Substring(0,1))$($last)".ToLower()
     
-    Write-Host "Would create user: $username ($first $last)" -ForegroundColor Green
+    try {
+        # Check if user already exists
+        if (Get-ADUser -Filter "SamAccountName -eq '$username'" -ErrorAction SilentlyContinue) {
+            Write-Host "User $username already exists - skipping" -ForegroundColor Yellow
+            $errorCount++
+            continue
+        }
+
+        Write-Host "Creating user: $($username)" -BackgroundColor Black -ForegroundColor Cyan
+        
+        New-AdUser -AccountPassword $password `
+                   -GivenName $first `
+                   -Surname $last `
+                   -DisplayName $username `
+                   -Name $username `
+                   -EmployeeID $username `
+                   -PasswordNeverExpires $true `
+                   -Path "OU=_USERS,$domainDN" `
+                   -Enabled $true
+                   
+        Write-Host "Successfully created user: $username" -ForegroundColor Green
+        $successCount++
+    } catch {
+        Write-Host "Error creating user $username : $_" -ForegroundColor Red
+        $errorCount++
+    }
 }
 
-Write-Host "`nNote: This is a preview mode since Active Directory is not available." -ForegroundColor Yellow
-Write-Host "To actually create users, run this on a machine with Active Directory." -ForegroundColor Yellow
+# Display summary
+Write-Host "`nUser Creation Summary" -ForegroundColor Cyan
+Write-Host "===================" -ForegroundColor Cyan
+Write-Host "Successfully created: $successCount users" -ForegroundColor Green
+Write-Host "Failed to create: $errorCount users" -ForegroundColor $(if ($errorCount -gt 0) { "Red" } else { "Green" })
+Write-Host "Total attempted: $($successCount + $errorCount) users" -ForegroundColor Cyan
 
 # Keep window open
 Write-Host "`nPress Enter to exit..." -ForegroundColor Yellow
