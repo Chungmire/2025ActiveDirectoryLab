@@ -22,7 +22,11 @@ do {
 # Download and process names list
 try {
     Write-Host "Downloading names list..." -ForegroundColor Cyan
-    $names = (Invoke-WebRequest -Uri $NAMES_URL -UseBasicParsing).Content.Split("`n")
+    $names = @((Invoke-WebRequest -Uri $NAMES_URL -UseBasicParsing).Content.Trim().Split("`n"))
+    if ($names.Count -eq 0) {
+        throw "Names list is empty"
+    }
+    Write-Host "Found $($names.Count) names" -ForegroundColor Green
     $USER_FIRST_LAST_LIST = Get-Random -InputObject $names -Count ([int]$NUMBER_OF_USERS)
 } catch {
     Write-Host "Error downloading or processing names list: $_" -ForegroundColor Red
