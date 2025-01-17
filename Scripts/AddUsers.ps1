@@ -1,6 +1,9 @@
 # Names list URL
 $NAMES_URL = "https://raw.githubusercontent.com/Chungmire/2025ActiveDirectoryLab/main/names.txt"
 
+# Get OU name
+$OU_NAME = Read-Host "Enter name of OU to create for users"
+
 # Get password
 $PASSWORD_FOR_USERS = Read-Host "Enter default password for new users"
 
@@ -19,8 +22,8 @@ do {
 # Download and process names list
 try {
     Write-Host "Downloading names list..." -ForegroundColor Cyan
-    $USER_FIRST_LAST_LIST = (Invoke-WebRequest -Uri $NAMES_URL -UseBasicParsing).Content.Split("`n") |
-        Get-Random -Count ([int]$NUMBER_OF_USERS)
+    $names = (Invoke-WebRequest -Uri $NAMES_URL -UseBasicParsing).Content.Split("`n")
+    $USER_FIRST_LAST_LIST = Get-Random -InputObject $names -Count ([int]$NUMBER_OF_USERS)
 } catch {
     Write-Host "Error downloading or processing names list: $_" -ForegroundColor Red
     Write-Host "Please check your internet connection and try again." -ForegroundColor Yellow
@@ -35,14 +38,14 @@ $password = ConvertTo-SecureString $PASSWORD_FOR_USERS -AsPlainText -Force
 # Create Users OU if it doesn't exist
 try {
     $domainDN = (Get-ADDomain).DistinguishedName
-    Get-ADOrganizationalUnit -Identity "OU=_USERS,$domainDN" 
-    Write-Host "_USERS OU already exists" -ForegroundColor Cyan
+    Get-ADOrganizationalUnit -Identity "OU=$OU_NAME,$domainDN" 
+    Write-Host "$OU_NAME OU already exists" -ForegroundColor Cyan
 } catch {
-    Write-Host "Creating _USERS Organizational Unit..." -ForegroundColor Cyan
+    Write-Host "Creating $OU_NAME Organizational Unit..." -ForegroundColor Cyan
     try {
-        New-ADOrganizationalUnit -Name "_USERS" -Path $domainDN -ProtectedFromAccidentalDeletion $false
+        New-ADOrganizationalUnit -Name $OU_NAME -Path $domainDN -ProtectedFromAccidentalDeletion $false
     } catch {
-        Write-Host "Error creating _USERS OU: $_" -ForegroundColor Red
+        Write-Host "Error creating $OU_NAME OU: $_" -ForegroundColor Red
         Write-Host "`nPress Enter to exit..." -ForegroundColor Yellow
         Read-Host
         exit 1
@@ -76,7 +79,7 @@ foreach ($n in $USER_FIRST_LAST_LIST) {
                    -Name $username `
                    -EmployeeID $username `
                    -PasswordNeverExpires $true `
-                   -Path "OU=_USERS,$domainDN" `
+                   -Path "OU=$OU_NAME,$domainDN" `
                    -Enabled $true
                    
         Write-Host "Successfully created user: $username" -ForegroundColor Green
