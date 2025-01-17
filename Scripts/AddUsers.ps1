@@ -21,10 +21,6 @@ try {
     Write-Host "Downloading names list..." -ForegroundColor Cyan
     $USER_FIRST_LAST_LIST = (Invoke-WebRequest -Uri $NAMES_URL -UseBasicParsing).Content.Split("`n") |
         Get-Random -Count ([int]$NUMBER_OF_USERS)
-
-    if ($USER_FIRST_LAST_LIST.Count -eq 0) {
-        throw "No valid names were found in the list"
-    }
 } catch {
     Write-Host "Error downloading or processing names list: $_" -ForegroundColor Red
     Write-Host "Please check your internet connection and try again." -ForegroundColor Yellow
