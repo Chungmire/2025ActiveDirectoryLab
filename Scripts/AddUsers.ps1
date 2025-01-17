@@ -2,11 +2,11 @@
 $NAMES_URL = "https://raw.githubusercontent.com/Chungmire/2025ActiveDirectoryLab/main/names.txt"
 
 # Get password
-$PASSWORD_FOR_USERS = Read-Host "Enter the default password for new users: "
+$PASSWORD_FOR_USERS = Read-Host "Enter default password for new users"
 
 # Get and validate number of users
 do {
-    $NUMBER_OF_USERS = Read-Host "Enter number of users to create: "
+    $NUMBER_OF_USERS = Read-Host "Enter number of users to create"
     
     if (-not ($NUMBER_OF_USERS -match '^\d+$')) {
         Write-Host "Please enter a valid number." -ForegroundColor Red
