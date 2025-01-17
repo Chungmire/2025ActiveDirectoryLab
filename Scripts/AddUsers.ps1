@@ -1,11 +1,11 @@
 # Names list URL
 $NAMES_URL = "https://raw.githubusercontent.com/Chungmire/2025ActiveDirectoryLab/main/names.txt"
 
-# Get OU name
-$OU_NAME = Read-Host "Enter name of OU to create for users"
-
 # Get password
 $PASSWORD_FOR_USERS = Read-Host "Enter default password for new users"
+
+# Get OU name
+$OU_NAME = Read-Host "Enter the name of the OU to create"
 
 # Get and validate number of users
 do {
@@ -36,10 +36,23 @@ try {
 $password = ConvertTo-SecureString $PASSWORD_FOR_USERS -AsPlainText -Force
 
 # Create Users OU if it doesn't exist
+$domainDN = (Get-ADDomain).DistinguishedName
 try {
-    $domainDN = (Get-ADDomain).DistinguishedName
     Get-ADOrganizationalUnit -Identity "OU=$OU_NAME,$domainDN" 
-    Write-Host "$OU_NAME OU already exists" -ForegroundColor Cyan
+    Write-Host "$OU_NAME OU already exists, will use _$OU_NAME instead" -ForegroundColor Yellow
+    $OU_NAME = "_$OU_NAME"
+    
+    # Check if the _OU exists
+    try {
+        Get-ADOrganizationalUnit -Identity "OU=$OU_NAME,$domainDN"
+        Write-Host "$OU_NAME also exists. Please use a different name." -ForegroundColor Red
+        Write-Host "`nPress Enter to exit..." -ForegroundColor Yellow
+        Read-Host
+        exit 1
+    } catch {
+        Write-Host "Creating $OU_NAME Organizational Unit..." -ForegroundColor Cyan
+        New-ADOrganizationalUnit -Name $OU_NAME -Path $domainDN -ProtectedFromAccidentalDeletion $false
+    }
 } catch {
     Write-Host "Creating $OU_NAME Organizational Unit..." -ForegroundColor Cyan
     try {
