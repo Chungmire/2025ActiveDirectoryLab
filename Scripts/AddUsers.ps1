@@ -22,13 +22,8 @@ do {
 # Download and process names list
 try {
     Write-Host "Downloading names list..." -ForegroundColor Cyan
-    $content = (Invoke-WebRequest -Uri $NAMES_URL -UseBasicParsing).Content
-    Write-Host "Content length: $($content.Length)"
-    $names = $content.Split("`n")
-    Write-Host "Names array length: $($names.Length)"
-    Write-Host "First few names:"
-    $names | Select-Object -First 3 | ForEach-Object { Write-Host "`"$_`"" }
-    $USER_FIRST_LAST_LIST = $names | Get-Random -Count ([int]$NUMBER_OF_USERS)
+    $USER_FIRST_LAST_LIST = (Invoke-WebRequest -Uri $NAMES_URL -UseBasicParsing).Content.Split("`n") |
+        Select-Object -First ([int]$NUMBER_OF_USERS)
 } catch {
     Write-Host "Error downloading or processing names list: $_" -ForegroundColor Red
     Write-Host "Please check your internet connection and try again." -ForegroundColor Yellow
