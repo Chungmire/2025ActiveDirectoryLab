@@ -1,5 +1,5 @@
 # Names list URL
-$NAMES_URL = "https://raw.githubusercontent.com/dominictarr/random-name/master/names.txt"
+$NAMES_URL = "https://raw.githubusercontent.com/JonCyberGuy/ActiveDirectoryLab/refs/heads/main/names.txt"
 
 # Get password
 $PASSWORD_FOR_USERS = Read-Host "Enter the default password for new users"
