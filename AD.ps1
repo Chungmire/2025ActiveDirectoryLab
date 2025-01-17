@@ -1,10 +1,5 @@
-Clear-Host
-
-# GitHub URL for the script
-$scriptUrl = "https://raw.githubusercontent.com/Chungmire/2025ActiveDirectoryLab/refs/heads/main/Scripts/AddUsers.ps1"
-
-
-# Run the script directly from the URL with elevated privileges
-Start-Process powershell.exe -ArgumentList "-ExecutionPolicy Bypass -Command `\"iex (iwr('$scriptUrl'))`\"" -Verb RunAs
-
-Write-Output "Executed script."
+if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
+    Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command & ([scriptblock]::Create((irm 'https://raw.githubusercontent.com/Chungmire/2025ActiveDirectoryLab/main/Scripts/AddUsers.ps1')))"
+    Exit
+}
+# Proceed with script logic after elevation
