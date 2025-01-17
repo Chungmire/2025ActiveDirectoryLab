@@ -1,5 +1,5 @@
 # Names list URL
-$NAMES_URL = "https://raw.githubusercontent.com/JonCyberGuy/ActiveDirectoryLab/refs/heads/main/names.txt"
+$NAMES_URL = "https://raw.githubusercontent.com/dominictarr/random-name/master/names.txt"
 
 # Get password
 $PASSWORD_FOR_USERS = Read-Host "Enter the default password for new users"
@@ -88,9 +88,12 @@ foreach ($n in $USER_FIRST_LAST_LIST) {
 }
 
 # Display summary
-Write-Host "-------------------------------------------------------------------------------------------" -ForegroundColor Cyan
 Write-Host "`nUser Creation Summary" -ForegroundColor Cyan
-Write-Host "-------------------------------------------------------------------------------------------" -ForegroundColor Cyan
+Write-Host "===================" -ForegroundColor Cyan
 Write-Host "Successfully created: $successCount users" -ForegroundColor Green
 Write-Host "Failed to create: $errorCount users" -ForegroundColor $(if ($errorCount -gt 0) { "Red" } else { "Green" })
 Write-Host "Total attempted: $($successCount + $errorCount) users" -ForegroundColor Cyan
+
+# Keep window open
+Write-Host "`nPress Enter to exit..." -ForegroundColor Yellow
+Read-Host
