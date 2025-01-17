@@ -20,7 +20,6 @@ do {
 try {
     Write-Host "Downloading names list..." -ForegroundColor Cyan
     $USER_FIRST_LAST_LIST = (Invoke-WebRequest -Uri $NAMES_URL -UseBasicParsing).Content.Split("`n") |
-        Where-Object { $_ -match "^\w+ \w+$" } |  # Filter valid "firstname lastname" entries
         Get-Random -Count ([int]$NUMBER_OF_USERS)
 
     if ($USER_FIRST_LAST_LIST.Count -eq 0) {
