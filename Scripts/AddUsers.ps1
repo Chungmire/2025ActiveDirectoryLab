@@ -32,7 +32,6 @@ try {
     exit 1
 }
 
-
 # Convert password to secure string
 $password = ConvertTo-SecureString $PASSWORD_FOR_USERS -AsPlainText -Force
 
@@ -92,7 +91,8 @@ foreach ($n in $USER_FIRST_LAST_LIST) {
                    -DisplayName $username `
                    -Name $username `
                    -EmployeeID $username `
-                   -PasswordNeverExpires $true `
+                   -PasswordNeverExpires $false `
+                   -ChangePasswordAtLogon $true `
                    -Path "OU=$OU_NAME,$domainDN" `
                    -Enabled $true
                    
